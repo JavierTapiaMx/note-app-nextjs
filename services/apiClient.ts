@@ -12,7 +12,7 @@ class ApiClient<T> {
 
   getAll = (config?: AxiosRequestConfig) => {
     return axiosInstance
-      .get<T>(this.endpoint, config)
+      .get<T[]>(this.endpoint, config)
       .then((response) => response.data);
   };
 
