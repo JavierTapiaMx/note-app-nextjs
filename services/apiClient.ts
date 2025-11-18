@@ -68,7 +68,7 @@ class ApiClient<T> {
       .then((response) => response.data);
   };
 
-  post = (data: T, config?: AxiosRequestConfig) => {
+  post = (data: Partial<T>, config?: AxiosRequestConfig) => {
     return axiosInstance
       .post<T>(this.endpoint, data, config)
       .then((response) => response.data);
