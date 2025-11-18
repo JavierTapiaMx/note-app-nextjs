@@ -18,8 +18,8 @@ const NoteCard = ({ note }: Props) => {
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0 flex-1">
+        <div className="flex flex-row items-center justify-between gap-2">
+          <div className="min-w-0 flex-1 space-y-2">
             <CardTitle>
               <Link
                 href={`/notes/${note.id}/edit`}
