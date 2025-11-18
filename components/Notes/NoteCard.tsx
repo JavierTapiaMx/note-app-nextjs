@@ -1,39 +1,20 @@
 "use client";
 
-import Link from "next/link";
-import type Note from "@/types/Note";
 import {
   Card,
+  CardDescription,
   CardHeader,
-  CardTitle,
-  CardDescription
+  CardTitle
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import {
-  Tooltip,
-  TooltipTrigger,
-  TooltipContent
-} from "@/components/ui/tooltip";
-import { Trash2 } from "lucide-react";
-import { useDeleteNote } from "@/hooks/useDeleteNote";
+import type Note from "@/types/Note";
+import Link from "next/link";
+import { DeleteNoteButton } from "./DeleteNoteButton";
 
 interface Props {
   note: Note;
 }
 
 const NoteCard = ({ note }: Props) => {
-  const { mutate: deleteNote, isPending: isDeleting } = useDeleteNote();
-
-  const handleDelete = () => {
-    const shouldDelete = window.confirm(
-      `Are you sure you want to delete "${note.title}"? This action cannot be undone.`
-    );
-
-    if (shouldDelete) {
-      deleteNote(note.id);
-    }
-  };
-
   return (
     <Card>
       <CardHeader>
@@ -49,23 +30,7 @@ const NoteCard = ({ note }: Props) => {
             </CardTitle>
             <CardDescription>{note.content}</CardDescription>
           </div>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleDelete}
-                disabled={isDeleting}
-                className="shrink-0 cursor-pointer text-red-600 hover:bg-red-50 hover:text-red-700"
-                aria-label={`Delete note: ${note.title}`}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Delete note</p>
-            </TooltipContent>
-          </Tooltip>
+          <DeleteNoteButton noteId={note.id} noteTitle={note.title} />
         </div>
       </CardHeader>
     </Card>
