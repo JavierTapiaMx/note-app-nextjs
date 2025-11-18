@@ -6,4 +6,5 @@ export const noteSchema = z.object({
   content: z.string().min(1, "Content is required")
 });
 
-export type Note = z.infer<typeof noteSchema>;
+export const createNoteSchema = noteSchema.omit({ id: true });
+export const updateNoteSchema = noteSchema.partial().omit({ id: true });

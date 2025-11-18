@@ -1,15 +1,10 @@
-import { db } from "@/db/drizzle";
-import { notesTable } from "@/db/schema";
-import { desc } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import { noteSchema } from "./schema";
+import { noteRepository } from "@/services/noteRepository";
 
-export const GET = async () => {
+export const GET = async (): Promise<NextResponse> => {
   try {
-    const notes = await db
-      .select()
-      .from(notesTable)
-      .orderBy(desc(notesTable.createdAt));
+    const notes = await noteRepository.findAll();
 
     return NextResponse.json(notes);
   } catch (error) {
@@ -22,9 +17,17 @@ export const GET = async () => {
   }
 };
 
-export const POST = async (request: NextRequest) => {
+export const POST = async (request: NextRequest): Promise<NextResponse> => {
   try {
-    const body = await request.json();
+    let body;
+    try {
+      body = await request.json();
+    } catch (error) {
+      return NextResponse.json(
+        { error: "Invalid JSON in request body" },
+        { status: 400 }
+      );
+    }
 
     const validation = noteSchema.safeParse(body);
 
@@ -35,15 +38,14 @@ export const POST = async (request: NextRequest) => {
       );
     }
 
-    const newNoteId = await db
-      .insert(notesTable)
-      .values({
-        title: validation.data.title,
-        content: validation.data.content
-      })
-      .$returningId();
+    const newNoteId = await noteRepository.create({
+      title: validation.data.title,
+      content: validation.data.content
+    });
 
-    return NextResponse.json({ id: newNoteId[0].id }, { status: 201 });
+    const newNote = await noteRepository.findById(newNoteId);
+
+    return NextResponse.json(newNote, { status: 201 });
   } catch (error) {
     console.error("Failed to create note:", error);
 
