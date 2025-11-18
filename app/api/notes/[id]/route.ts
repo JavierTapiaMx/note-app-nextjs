@@ -4,9 +4,13 @@ import { eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import { noteSchema } from "../schema";
 
+type RouteParams = {
+  id: string;
+};
+
 export const GET = async (
   _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<RouteParams> }
 ) => {
   try {
     const { id } = await params;
@@ -39,7 +43,7 @@ export const GET = async (
 
 export const PATCH = async (
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<RouteParams> }
 ) => {
   try {
     const { id } = await params;
@@ -97,7 +101,7 @@ export const PATCH = async (
 
 export const DELETE = async (
   _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<RouteParams> }
 ) => {
   try {
     const { id } = await params;
