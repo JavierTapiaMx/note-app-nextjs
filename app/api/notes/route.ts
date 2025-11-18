@@ -35,7 +35,9 @@ export const POST = async (request: NextRequest) => {
       content: validation.data.content
     });
 
-    return NextResponse.json({ id: newNoteId }, { status: 201 });
+    const newNote = await noteRepository.findById(newNoteId);
+
+    return NextResponse.json(newNote, { status: 201 });
   } catch (error) {
     console.error("Failed to create note:", error);
 

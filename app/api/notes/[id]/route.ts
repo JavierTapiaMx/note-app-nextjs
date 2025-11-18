@@ -97,10 +97,7 @@ export const DELETE = async (
 
     await noteRepository.delete(noteId);
 
-    return NextResponse.json(
-      { message: "Note deleted successfully" },
-      { status: 200 }
-    );
+    return new NextResponse(null, { status: 204 });
   } catch (error) {
     console.error("Failed to delete note:", error);
 
