@@ -19,11 +19,11 @@ export const metadata: Metadata = {
   description: "Note taking app built with Next.js, Drizzle ORM, and MySQL"
 };
 
-export default function RootLayout({
+const RootLayout = ({
   children
 }: Readonly<{
   children: React.ReactNode;
-}>) {
+}>) => {
   return (
     <html lang="en">
       <body
@@ -36,4 +36,6 @@ export default function RootLayout({
       </body>
     </html>
   );
-}
+};
+
+export default RootLayout;
