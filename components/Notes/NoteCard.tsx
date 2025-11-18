@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type Note from "@/types/Note";
 import {
   Card,
@@ -14,7 +15,14 @@ const NoteCard = ({ note }: Props) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{note.title}</CardTitle>
+        <CardTitle>
+          <Link
+            href={`/notes/${note.id}/edit`}
+            className="hover:text-primary transition-colors cursor-pointer"
+          >
+            {note.title}
+          </Link>
+        </CardTitle>
         <CardDescription>{note.content}</CardDescription>
       </CardHeader>
     </Card>

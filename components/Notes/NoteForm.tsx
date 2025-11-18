@@ -11,7 +11,10 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Spinner } from "@/components/ui/spinner";
 import { useCreateNote } from "@/hooks/useCreateNote";
+import { useUpdateNote } from "@/hooks/useUpdateNote";
+import type Note from "@/types/Note";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -24,28 +27,46 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 interface Props {
+  note?: Note;
   onSuccess?: () => void;
 }
 
-const NoteForm = ({ onSuccess }: Props) => {
-  const { mutate: createNote, isPending } = useCreateNote();
+const NoteForm = ({ note, onSuccess }: Props) => {
+  const isEditMode = !!note;
+
+  const { mutate: createNote, isPending: isCreating } = useCreateNote();
+  const { mutate: updateNote, isPending: isUpdating } = useUpdateNote(
+    note?.id ?? 0
+  );
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "",
-      content: ""
+      title: note?.title ?? "",
+      content: note?.content ?? ""
     }
   });
 
   const onSubmit = (data: FormData) => {
-    createNote(data, {
-      onSuccess: () => {
-        form.reset();
-        onSuccess?.();
-      }
-    });
+    if (isEditMode) {
+      updateNote(data, {
+        onSuccess: () => {
+          onSuccess?.();
+        }
+      });
+    } else {
+      createNote(data, {
+        onSuccess: () => {
+          form.reset();
+          onSuccess?.();
+        }
+      });
+    }
   };
+
+  const isPending = isCreating || isUpdating;
+  const submitButtonText = isEditMode ? "Update Note" : "Create Note";
+  const loadingButtonText = isEditMode ? "Updating..." : "Creating...";
 
   return (
     <Form {...form}>
@@ -83,7 +104,8 @@ const NoteForm = ({ onSuccess }: Props) => {
         />
 
         <Button type="submit" disabled={isPending}>
-          {isPending ? "Creating..." : "Create Note"}
+          {isPending && <Spinner />}
+          {isPending ? loadingButtonText : submitButtonText}
         </Button>
       </form>
     </Form>
