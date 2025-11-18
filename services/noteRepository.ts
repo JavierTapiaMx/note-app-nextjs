@@ -1,16 +1,19 @@
 import { db } from "@/db/drizzle";
 import { notesTable } from "@/db/schema";
 import { eq, desc } from "drizzle-orm";
+import type { InferSelectModel } from "drizzle-orm";
+
+type NoteRow = InferSelectModel<typeof notesTable>;
 
 export class NoteRepository {
-  async findAll() {
+  async findAll(): Promise<NoteRow[]> {
     return await db
       .select()
       .from(notesTable)
       .orderBy(desc(notesTable.createdAt));
   }
 
-  async findById(id: number) {
+  async findById(id: number): Promise<NoteRow | null> {
     const notes = await db
       .select()
       .from(notesTable)
@@ -20,7 +23,7 @@ export class NoteRepository {
     return notes[0] ?? null;
   }
 
-  async create(data: { title: string; content: string }) {
+  async create(data: { title: string; content: string }): Promise<number> {
     const newNoteId = await db
       .insert(notesTable)
       .values({
@@ -32,7 +35,10 @@ export class NoteRepository {
     return newNoteId[0].id;
   }
 
-  async update(id: number, data: Partial<{ title: string; content: string }>) {
+  async update(
+    id: number,
+    data: Partial<{ title: string; content: string }>
+  ): Promise<NoteRow | null> {
     await db
       .update(notesTable)
       .set({
@@ -44,7 +50,7 @@ export class NoteRepository {
     return this.findById(id);
   }
 
-  async delete(id: number) {
+  async delete(id: number): Promise<void> {
     await db.delete(notesTable).where(eq(notesTable.id, id));
   }
 
