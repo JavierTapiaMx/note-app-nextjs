@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-A note-taking application built with Next.js 16 (App Router), Drizzle ORM, MySQL, TypeScript, and TanStack Query (React Query). Uses the Repository pattern for data access and server-side API routes for backend functionality.
+A full-stack note-taking application built with Next.js 16 (App Router), Drizzle ORM, MySQL, TypeScript, and TanStack Query (React Query). Features a clean layered architecture with the Repository pattern for data access, React Hook Form for form handling, and shadcn/ui components for a polished UI. Includes create, read, update, and delete functionality with real-time notifications, loading states, and accessibility features.
 
 ## Development Commands
 
@@ -89,47 +89,80 @@ The app follows a layered architecture with clear separation of concerns:
 
 ```
 app/
-├── api/                    # API routes (server-side)
+├── api/                           # API routes (server-side)
 │   └── notes/
-│       ├── route.ts        # GET /api/notes, POST /api/notes
-│       ├── [id]/route.ts   # GET/PATCH/DELETE /api/notes/:id
-│       └── schema.ts       # Zod validation schemas
-├── notes/                  # Pages
-└── layout.tsx              # Root layout with providers
+│       ├── route.ts               # GET /api/notes, POST /api/notes
+│       ├── [id]/route.ts          # GET/PATCH/DELETE /api/notes/:id
+│       └── schema.ts              # Zod validation schemas
+├── notes/                         # Note pages
+│   ├── page.tsx                   # List all notes view
+│   ├── new/page.tsx               # Create new note page
+│   └── [id]/edit/page.tsx         # Edit note page
+├── layout.tsx                     # Root layout with providers
+├── page.tsx                       # Home page
+├── globals.css                    # Global styles, TailwindCSS config, theme variables
+└── favicon.ico
 
-components/                 # React components
-├── Notes/                  # Note-specific components
-└── ui/                     # Reusable UI components (shadcn/ui)
+components/                        # React components
+├── NavBar.tsx                     # Top navigation with active link tracking
+├── Notes/                         # Note-specific components
+│   ├── NoteCard.tsx               # Individual note display card
+│   ├── NoteForm.tsx               # Reusable form for create/edit (React Hook Form)
+│   ├── DeleteNoteButton.tsx       # Delete button with confirmation dialog
+│   ├── NotesList.tsx              # Container for list of NoteCards
+│   ├── NotesLoading.tsx           # Loading skeleton display
+│   ├── NotesEmpty.tsx             # Empty state display
+│   └── NotesError.tsx             # Error state display
+└── ui/                            # Reusable UI components (shadcn/ui)
+    ├── button.tsx                 # Button with variants
+    ├── card.tsx                   # Card layout components
+    ├── form.tsx                   # React Hook Form integration
+    ├── input.tsx                  # Text input field
+    ├── label.tsx                  # Form label
+    ├── textarea.tsx               # Multi-line text input
+    ├── tooltip.tsx                # Tooltip component
+    ├── skeleton.tsx               # Loading placeholder
+    ├── spinner.tsx                # Animated loading spinner
+    └── sonner.tsx                 # Toast notification component
 
-hooks/                      # Custom React hooks
-└── useNotes.ts            # TanStack Query hook for notes
+hooks/                             # Custom React hooks (TanStack Query wrappers)
+├── useNotes.ts                    # Fetch all notes with caching
+├── useNote.ts                     # Fetch single note by ID
+├── useCreateNote.ts               # Create note mutation
+├── useUpdateNote.ts               # Update note mutation
+└── useDeleteNote.ts               # Delete note mutation
 
 services/
-├── apiClient.ts           # Generic HTTP client
-├── noteService.ts         # Notes API service instance
-└── noteRepository.ts      # Database repository (server-side)
+├── apiClient.ts                   # Generic HTTP client (Axios)
+├── noteService.ts                 # Notes API service instance
+└── noteRepository.ts              # Database repository (server-side)
 
 db/
-├── schema.ts              # Drizzle ORM schema definitions
-└── drizzle.ts             # Database connection
+├── schema.ts                      # Drizzle ORM schema definitions
+└── drizzle.ts                     # Database connection with pooling
 
-drizzle/                   # Migration files (auto-generated)
+drizzle/                           # Migration files (auto-generated)
 
 types/
-└── Note.ts                # Shared TypeScript types
+└── Note.ts                        # Shared TypeScript types
 
 providers/
-└── reactQueryProvider.tsx # TanStack Query setup
+├── reactQueryProvider.tsx         # TanStack Query setup with devtools
+└── toastProvider.tsx              # Sonner Toaster provider
+
+lib/
+└── utils.ts                       # Utility functions (cn for class merging)
 ```
 
 ## Important Conventions
 
 ### API Routes
 
-- Return proper HTTP status codes (200, 201, 400, 404, 500)
+- Return proper HTTP status codes (200, 201, 204, 400, 404, 500)
 - Use Zod for request validation; return validation errors as `{ errors: [...] }`
 - Always use try-catch for error handling
 - Call repository methods instead of writing SQL directly
+- Status codes: 201 for create, 204 for delete, 400 for validation errors, 404 for not found, 500 for server errors
 
 ### Repository Methods
 
@@ -137,12 +170,22 @@ providers/
 - Methods return domain objects (not database rows)
 - Handle not-found cases by returning `null`
 - Use Drizzle ORM query builder (not raw SQL)
+- Available methods: `findAll()`, `findById()`, `create()`, `update()`, `delete()`, `exists()`
 
 ### Client-Side Data Fetching
 
 - Always use custom hooks that wrap TanStack Query
 - Never call `fetch()` or `axios` directly from components
 - Configure caching strategy in the hook (staleTime, gcTime, retry)
+- Current caching config: `staleTime: 5 minutes`, `gcTime: 10 minutes`, `retry: 3`
+- Query invalidation on mutations for automatic data syncing
+
+### Form Handling
+
+- Use React Hook Form with Zod validation
+- Leverage the `form.tsx` component from shadcn/ui for consistent form UI
+- Client-side validation matches server-side Zod schemas
+- Display validation errors inline with form fields
 
 ### Database Schema Changes
 
@@ -167,3 +210,63 @@ import Note from "@/types/Note";
 - shadcn/ui components in [components/ui/](components/ui/)
 - Component configuration in [components.json](components.json)
 - Geist fonts (Sans and Mono) for typography
+- Theme support with CSS variables for light/dark modes
+- Utility function `cn()` in [lib/utils.ts](lib/utils.ts) for merging Tailwind classes
+
+## UI Components
+
+### shadcn/ui Components Available
+
+- **Button**: Multiple variants (default, destructive, outline, secondary, ghost, link)
+- **Card**: Layout components with Header, Title, Description, Content, Footer, Action
+- **Form**: React Hook Form integration with Field, Label, Control, Description, Message
+- **Input**: Text input field
+- **Textarea**: Multi-line text input
+- **Label**: Form label
+- **Tooltip**: Radix UI tooltip wrapper
+- **Skeleton**: Loading placeholder
+- **Spinner**: Animated loading indicator
+- **Sonner**: Toast notification system with theme support
+
+### Notifications
+
+- Uses Sonner for toast notifications
+- Configured in [providers/toastProvider.tsx](providers/toastProvider.tsx)
+- Success and error notifications on CRUD operations
+
+## Technologies
+
+### Core Stack
+
+- **Next.js**: 16.0.3 (App Router)
+- **React**: 19.2.0
+- **TypeScript**: 5
+- **Database**: MySQL with Drizzle ORM 0.44.7
+- **State Management**: TanStack Query 5.90.10
+
+### UI & Styling
+
+- **TailwindCSS**: v4
+- **shadcn/ui**: Component library built on Radix UI
+- **Lucide React**: Icon library (0.554.0)
+- **Sonner**: Toast notifications (2.0.7)
+- **next-themes**: Theme management (0.4.6)
+
+### Forms & Validation
+
+- **React Hook Form**: 7.66.1
+- **Zod**: 4.1.12
+- **@hookform/resolvers**: 5.2.2
+
+### HTTP Client
+
+- **Axios**: 1.13.2 with custom error handling
+
+## Developer notes
+
+- For any code recommendations, always use the best practices
+- Anything that is unclear, point it out and bring back all of your concerns around this project
+- According to the best practices, when creating/updating new functions, use arrow functions when recommended
+- Don’t add unnecessary comments — prefer well-named methods to comments
+- When if conditions have multiple statements, compose descriptive variables instead of inline conditions
+- Comments should explain "why", not "what"
