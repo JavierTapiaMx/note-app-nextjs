@@ -26,7 +26,7 @@ export const useNotes = () => {
   return {
     notes,
     isLoading,
-    isFetching, // Useful to show background refresh indicators
+    isFetching,
     error,
     refetch
   };
