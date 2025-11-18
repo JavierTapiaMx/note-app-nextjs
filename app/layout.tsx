@@ -1,5 +1,6 @@
 import NavBar from "@/components/NavBar";
 import { ReactQueryProvider } from "@/providers/reactQueryProvider";
+import { ToastProvider } from "@/providers/toastProvider";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -32,6 +33,7 @@ const RootLayout = ({
         <ReactQueryProvider>
           <NavBar />
           <main>{children}</main>
+          <ToastProvider />
         </ReactQueryProvider>
       </body>
     </html>
