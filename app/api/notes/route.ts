@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { noteSchema } from "./schema";
 import { noteRepository } from "@/services/noteRepository";
 
-export const GET = async () => {
+export const GET = async (): Promise<NextResponse> => {
   try {
     const notes = await noteRepository.findAll();
 
@@ -17,7 +17,7 @@ export const GET = async () => {
   }
 };
 
-export const POST = async (request: NextRequest) => {
+export const POST = async (request: NextRequest): Promise<NextResponse> => {
   try {
     let body;
     try {

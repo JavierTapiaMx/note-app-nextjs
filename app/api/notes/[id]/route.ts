@@ -9,7 +9,7 @@ type RouteParams = {
 export const GET = async (
   _request: NextRequest,
   { params }: { params: Promise<RouteParams> }
-) => {
+): Promise<NextResponse> => {
   try {
     const { id } = await params;
     const noteId = parseInt(id);
@@ -38,7 +38,7 @@ export const GET = async (
 export const PATCH = async (
   request: NextRequest,
   { params }: { params: Promise<RouteParams> }
-) => {
+): Promise<NextResponse> => {
   try {
     const { id } = await params;
     const noteId = parseInt(id);
@@ -88,7 +88,7 @@ export const PATCH = async (
 export const DELETE = async (
   _request: NextRequest,
   { params }: { params: Promise<RouteParams> }
-) => {
+): Promise<NextResponse> => {
   try {
     const { id } = await params;
     const noteId = parseInt(id);
