@@ -1,8 +1,6 @@
-import { db } from "@/db/drizzle";
-import { notesTable } from "@/db/schema";
-import { eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import { noteSchema } from "../schema";
+import { noteRepository } from "@/services/noteRepository";
 
 type RouteParams = {
   id: string;
@@ -20,17 +18,13 @@ export const GET = async (
       return NextResponse.json({ error: "Invalid note Id" }, { status: 400 });
     }
 
-    const note = await db
-      .select()
-      .from(notesTable)
-      .where(eq(notesTable.id, noteId))
-      .limit(1);
+    const note = await noteRepository.findById(noteId);
 
-    if (note.length === 0) {
+    if (!note) {
       return NextResponse.json({ error: "Note not found" }, { status: 404 });
     }
 
-    return NextResponse.json(note[0]);
+    return NextResponse.json(note);
   } catch (error) {
     console.error("Failed to fetch note:", error);
 
@@ -64,31 +58,15 @@ export const PATCH = async (
       );
     }
 
-    const existingNote = await db
-      .select()
-      .from(notesTable)
-      .where(eq(notesTable.id, noteId))
-      .limit(1);
+    const existsNote = await noteRepository.exists(noteId);
 
-    if (existingNote.length === 0) {
+    if (!existsNote) {
       return NextResponse.json({ error: "Note not found" }, { status: 404 });
     }
 
-    await db
-      .update(notesTable)
-      .set({
-        ...validation.data,
-        updatedAt: new Date()
-      })
-      .where(eq(notesTable.id, noteId));
+    const updatedNote = await noteRepository.update(noteId, validation.data);
 
-    const updatedNote = await db
-      .select()
-      .from(notesTable)
-      .where(eq(notesTable.id, noteId))
-      .limit(1);
-
-    return NextResponse.json(updatedNote[0]);
+    return NextResponse.json(updatedNote);
   } catch (error) {
     console.error("Failed to update note:", error);
 
@@ -111,17 +89,13 @@ export const DELETE = async (
       return NextResponse.json({ error: "Invalid note Id" }, { status: 400 });
     }
 
-    const existingNote = await db
-      .select()
-      .from(notesTable)
-      .where(eq(notesTable.id, noteId))
-      .limit(1);
+    const existsNote = await noteRepository.exists(noteId);
 
-    if (existingNote.length === 0) {
+    if (!existsNote) {
       return NextResponse.json({ error: "Note not found" }, { status: 404 });
     }
 
-    await db.delete(notesTable).where(eq(notesTable.id, noteId));
+    await noteRepository.delete(noteId);
 
     return NextResponse.json(
       { message: "Note deleted successfully" },
