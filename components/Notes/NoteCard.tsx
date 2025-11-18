@@ -15,14 +15,14 @@ import {
   TooltipContent
 } from "@/components/ui/tooltip";
 import { Trash2 } from "lucide-react";
-import { useNotes } from "@/hooks/useNotes";
+import { useDeleteNote } from "@/hooks/useDeleteNote";
 
 interface Props {
   note: Note;
 }
 
 const NoteCard = ({ note }: Props) => {
-  const { deleteNote, isDeleting } = useNotes();
+  const { mutate: deleteNote, isPending: isDeleting } = useDeleteNote();
 
   const handleDelete = () => {
     const shouldDelete = window.confirm(
