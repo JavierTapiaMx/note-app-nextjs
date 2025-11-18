@@ -1,7 +1,17 @@
 import axios, { type AxiosRequestConfig } from "axios";
 
+const getBaseURL = () => {
+  // Browser environment
+  if (typeof window !== "undefined") {
+    return "/api";
+  }
+
+  // Server-side rendering - use environment variable or localhost
+  return process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
+};
+
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:3000/api",
+  baseURL: getBaseURL(),
   headers: {
     "Content-Type": "application/json"
   }
