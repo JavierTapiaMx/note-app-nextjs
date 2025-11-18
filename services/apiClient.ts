@@ -17,6 +17,42 @@ const axiosInstance = axios.create({
   }
 });
 
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response) {
+      const { status, data } = error.response;
+
+      if (data?.errors && Array.isArray(data.errors)) {
+        const validationMessage = data.errors
+          .map((err: { path: string[]; message: string }) => err.message)
+          .join(", ");
+        throw new Error(validationMessage);
+      }
+
+      if (data?.error) {
+        throw new Error(data.error);
+      }
+
+      const statusMessages: Record<number, string> = {
+        400: "Invalid request. Please check your input.",
+        401: "You are not authorized to perform this action.",
+        403: "You do not have permission to access this resource.",
+        404: "The requested resource was not found.",
+        500: "Server error. Please try again later."
+      };
+
+      throw new Error(statusMessages[status] || "An unexpected error occurred.");
+    }
+
+    if (error.request) {
+      throw new Error("Network error. Please check your connection.");
+    }
+
+    throw new Error(error.message || "An unexpected error occurred.");
+  }
+);
+
 class ApiClient<T> {
   constructor(public endpoint: string) {}
 
