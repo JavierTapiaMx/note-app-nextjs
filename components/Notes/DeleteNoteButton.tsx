@@ -39,6 +39,7 @@ export const DeleteNoteButton = ({
           variant="ghost"
           size="icon"
           className="text-muted-foreground hover:text-destructive h-8 w-8"
+          aria-label={`Delete note: ${noteTitle}`}
         >
           <Trash2 className="h-4 w-4" />
         </Button>
