@@ -19,7 +19,15 @@ export const GET = async () => {
 
 export const POST = async (request: NextRequest) => {
   try {
-    const body = await request.json();
+    let body;
+    try {
+      body = await request.json();
+    } catch (error) {
+      return NextResponse.json(
+        { error: "Invalid JSON in request body" },
+        { status: 400 }
+      );
+    }
 
     const validation = noteSchema.safeParse(body);
 

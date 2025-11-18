@@ -47,7 +47,15 @@ export const PATCH = async (
       return NextResponse.json({ error: "Invalid note Id" }, { status: 400 });
     }
 
-    const body = await request.json();
+    let body;
+    try {
+      body = await request.json();
+    } catch (error) {
+      return NextResponse.json(
+        { error: "Invalid JSON in request body" },
+        { status: 400 }
+      );
+    }
 
     const validation = noteSchema.partial().safeParse(body);
 
