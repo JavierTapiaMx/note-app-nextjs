@@ -1,0 +1,58 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: note-app-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: p4ssw0rd
+      MYSQL_DATABASE: NoteApp
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-u",
+          "root",
+          "-pp4ssw0rd"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+    networks:
+      - note-app-network
+    restart: unless-stopped
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        DATABASE_URL: "mysql://root:p4ssw0rd@mysql:3306/NoteApp"
+        NEXT_PUBLIC_API_URL: "http://localhost:3000/api"
+    container_name: note-app
+    environment:
+      DATABASE_URL: "mysql://root:p4ssw0rd@mysql:3306/NoteApp"
+      NEXT_PUBLIC_API_URL: "http://localhost:3000/api"
+    ports:
+      - "3000:3000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - note-app-network
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  note-app-network:
+    driver: bridge
