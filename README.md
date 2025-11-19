@@ -115,7 +115,7 @@ The easiest way to get started is using Docker, which handles all setup automati
 
 ```bash
 # 1. Clone the repository
-git clone <repository-url>
+git clone https://github.com/JavierTapiaMx/note-app-nextjs.git
 cd note-app-nextjs
 
 # 2. Start everything (MySQL + Next.js app)
@@ -150,7 +150,7 @@ If you prefer to run MySQL locally:
 #### 1. Clone the Repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/JavierTapiaMx/note-app-nextjs.git
 cd note-app-nextjs
 ```
 
