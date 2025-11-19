@@ -11,7 +11,14 @@
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
     "test:unit": "vitest lib/validations",
-    "test:integration": "vitest tests/integration"
+    "test:integration": "vitest tests/integration",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "docker:restart": "docker-compose restart",
+    "docker:clean": "docker-compose down -v",
+    "docker:dev": "docker-compose up"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
