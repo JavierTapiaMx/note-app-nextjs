@@ -1,6 +1,6 @@
 # Testing Guide
 
-This project uses Vitest for unit testing with a focus on form validation and business rules.
+This project uses Vitest for both **unit testing** (validation schemas) and **integration testing** (API to database).
 
 ## Setup
 
@@ -9,11 +9,19 @@ This project uses Vitest for unit testing with a focus on form validation and bu
    pnpm install
    ```
 
+2. Ensure your database is running and `.env.local` is configured with `DATABASE_URL`
+
 ## Running Tests
 
 ```bash
-# Run all tests
+# Run all tests (unit + integration)
 pnpm test
+
+# Run only unit tests
+pnpm test:unit
+
+# Run only integration tests
+pnpm test:integration
 
 # Run tests in watch mode
 pnpm test -- --watch
@@ -27,7 +35,7 @@ pnpm test:coverage
 
 ## Test Structure
 
-### Validation Tests
+### Unit Tests - Validation
 
 Location: `lib/validations/noteValidation.test.ts`
 
@@ -50,14 +58,47 @@ Tests cover:
   - `createNoteSchema` - Create operations (no ID)
   - `updateNoteSchema` - Partial updates (no ID)
 
-## Test Coverage
+### Integration Tests - API to Database
 
-The validation tests ensure:
+Location: `tests/integration/api/notes/`
+
+Tests cover:
+- **Create Note** (`create.test.ts`)
+  - POST /api/notes endpoint
+  - Database persistence
+  - Validation errors
+  - Edge cases (11 test cases)
+
+- **Update Note** (`update.test.ts`)
+  - PATCH /api/notes/:id endpoint
+  - Partial updates
+  - Timestamp updates
+  - Not found scenarios (15 test cases)
+
+- **Get Single Note** (`get-single.test.ts`)
+  - GET /api/notes/:id endpoint
+  - Data consistency
+  - Invalid ID handling (13 test cases)
+
+**⚠️ Important**: Integration tests run against your actual database with `[TEST]` prefix for safety. Automatic cleanup runs after each test.
+
+See [integration/README.md](integration/README.md) for detailed integration testing guide.
+
+## Test Coverage Summary
+
+### Unit Tests (60+ test cases)
 - ✅ Business rules are enforced (title max 255 chars, required fields)
 - ✅ Error messages are consistent and user-friendly
 - ✅ Edge cases are handled properly
 - ✅ Partial updates work correctly
 - ✅ Schema variations work as expected
+
+### Integration Tests (39 test cases)
+- ✅ Full API → Database → Response flow
+- ✅ Data persistence verification
+- ✅ Error handling at all layers
+- ✅ Edge cases and boundary conditions
+- ✅ Data consistency checks
 
 ## Writing New Tests
 
