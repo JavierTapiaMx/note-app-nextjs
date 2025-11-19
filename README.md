@@ -204,7 +204,36 @@ You should see:
 
 ## 🏃 Running the Application
 
-### Development Mode
+### Option 1: Using Docker (Recommended)
+
+Docker provides an isolated environment with MySQL pre-configured:
+
+```bash
+# Build and start all services (MySQL + Next.js app)
+pnpm docker:up
+
+# View logs
+pnpm docker:logs
+
+# Stop services
+pnpm docker:down
+
+# Clean up (remove volumes and data)
+pnpm docker:clean
+```
+
+The application will be available at [http://localhost:3000](http://localhost:3000)
+
+**What Docker does automatically:**
+
+- ✅ Sets up MySQL database
+- ✅ Waits for MySQL to be ready
+- ✅ Runs database migrations
+- ✅ Starts the Next.js app
+
+### Option 2: Local Development (Without Docker)
+
+#### Development Mode
 
 Start the development server with hot reload:
 
@@ -214,7 +243,7 @@ pnpm dev
 
 The application will be available at [http://localhost:3000](http://localhost:3000)
 
-### Production Build
+#### Production Build
 
 Build and run the production version:
 
@@ -234,6 +263,15 @@ pnpm lint
 
 # Format code with prettier
 pnpm format
+
+# Docker commands
+pnpm docker:build    # Build Docker images
+pnpm docker:up       # Start in detached mode
+pnpm docker:dev      # Start with logs visible
+pnpm docker:down     # Stop containers
+pnpm docker:restart  # Restart containers
+pnpm docker:logs     # View logs
+pnpm docker:clean    # Remove everything including data
 ```
 
 ## 🧪 Testing
