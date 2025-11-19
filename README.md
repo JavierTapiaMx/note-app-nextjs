@@ -104,26 +104,65 @@ Before you begin, ensure you have the following installed:
 
 - **Node.js**: v20 or higher ([Download](https://nodejs.org/))
 - **pnpm**: v8 or higher ([Install](https://pnpm.io/installation))
-- **MySQL**: v8 or higher ([Download](https://dev.mysql.com/downloads/))
+- **Docker**: Latest version ([Download](https://www.docker.com/products/docker-desktop/)) - **Recommended**
+- **MySQL**: v8 or higher ([Download](https://dev.mysql.com/downloads/)) - Only needed for local development without Docker
 
 ## 🚀 Installation & Setup
 
-### 1. Clone the Repository
+### Option 1: Using Docker (Recommended)
+
+The easiest way to get started is using Docker, which handles all setup automatically.
+
+```bash
+# 1. Clone the repository
+git clone <repository-url>
+cd note-app-nextjs
+
+# 2. Start everything (MySQL + Next.js app)
+pnpm docker:up
+
+# That's it! The app is now running at http://localhost:3000
+```
+
+**What Docker does automatically:**
+
+- ✅ Sets up MySQL 8.0 database
+- ✅ Creates the `NoteApp` database
+- ✅ Waits for MySQL to be ready
+- ✅ Runs database migrations automatically
+- ✅ Starts the Next.js application
+
+**Docker Commands:**
+
+```bash
+pnpm docker:up       # Start services in background
+pnpm docker:down     # Stop services
+pnpm docker:logs     # View logs
+pnpm docker:restart  # Restart services
+pnpm docker:clean    # Stop and remove all data
+pnpm docker:dev      # Start with logs visible
+```
+
+### Option 2: Local Development (Without Docker)
+
+If you prefer to run MySQL locally:
+
+#### 1. Clone the Repository
 
 ```bash
 git clone <repository-url>
 cd note-app-nextjs
 ```
 
-### 2. Install Dependencies
+#### 2. Install Dependencies
 
 ```bash
 pnpm install
 ```
 
-### 3. Set Up MySQL Database
+#### 3. Set Up MySQL Database
 
-#### Option A: Using MySQL CLI
+**Option A: Using MySQL CLI**
 
 ```bash
 # Log into MySQL
@@ -136,13 +175,13 @@ CREATE DATABASE NoteApp;
 exit;
 ```
 
-#### Option B: Using MySQL Workbench
+**Option B: Using MySQL Workbench**
 
 1. Open MySQL Workbench
 2. Connect to your MySQL server
 3. Create a new schema named `NoteApp`
 
-### 4. Configure Environment Variables
+#### 4. Configure Environment Variables
 
 Create a `.env.local` file in the project root:
 
@@ -165,7 +204,7 @@ DATABASE_URL="mysql://root:p4ssw0rd@localhost:3306/NoteApp"
 NEXT_PUBLIC_API_URL="http://localhost:3000/api"
 ```
 
-### 5. Run Database Migrations
+#### 5. Run Database Migrations
 
 Generate and run migrations to create the database schema:
 
@@ -184,7 +223,7 @@ npx drizzle-kit migrate
 npx drizzle-kit push
 ```
 
-### 6. Verify Database Setup
+#### 6. Verify Database Setup
 
 Check that the `notes` table was created:
 
@@ -226,10 +265,23 @@ The application will be available at [http://localhost:3000](http://localhost:30
 
 **What Docker does automatically:**
 
-- ✅ Sets up MySQL database
+- ✅ Sets up MySQL 8.0 database
+- ✅ Creates the `NoteApp` database
 - ✅ Waits for MySQL to be ready
-- ✅ Runs database migrations
-- ✅ Starts the Next.js app
+- ✅ Runs database migrations automatically via `drizzle-kit push`
+- ✅ Starts the Next.js application
+
+**All Docker Commands:**
+
+```bash
+pnpm docker:build    # Build Docker images
+pnpm docker:up       # Start in detached mode
+pnpm docker:dev      # Start with logs visible
+pnpm docker:down     # Stop containers
+pnpm docker:restart  # Restart containers
+pnpm docker:logs     # View logs
+pnpm docker:clean    # Remove everything including data
+```
 
 ### Option 2: Local Development (Without Docker)
 
@@ -263,15 +315,6 @@ pnpm lint
 
 # Format code with prettier
 pnpm format
-
-# Docker commands
-pnpm docker:build    # Build Docker images
-pnpm docker:up       # Start in detached mode
-pnpm docker:dev      # Start with logs visible
-pnpm docker:down     # Stop containers
-pnpm docker:restart  # Restart containers
-pnpm docker:logs     # View logs
-pnpm docker:clean    # Remove everything including data
 ```
 
 ## 🧪 Testing
@@ -443,6 +486,10 @@ note-app-nextjs/
 │   └── toastProvider.tsx         # Toast notifications provider
 │
 ├── drizzle/                      # Migration files (auto-generated)
+├── Dockerfile                    # Docker configuration for Next.js app
+├── docker-compose.yml            # Docker services orchestration
+├── docker-entrypoint.sh          # Container startup script
+├── .dockerignore                 # Docker build exclusions
 ├── .env.local                    # Environment variables (create this)
 ├── vitest.config.ts              # Vitest configuration
 ├── tsconfig.json                 # TypeScript configuration
@@ -746,6 +793,49 @@ netstat -ano | findstr :3000  # Windows
 
 # Kill the process or use a different port
 PORT=3001 pnpm dev
+```
+
+### Docker Issues
+
+**Error:** Docker build fails or containers won't start
+
+**Solution:**
+
+1. Ensure Docker Desktop is running
+2. Check Docker logs: `pnpm docker:logs`
+3. Clean up and rebuild:
+
+```bash
+pnpm docker:clean
+pnpm docker:build
+pnpm docker:up
+```
+
+**Error:** Cannot connect to database in Docker
+
+**Solution:**
+
+1. Check MySQL container health: `docker ps`
+2. Wait for MySQL to be healthy (health check may take 10-20 seconds)
+3. View MySQL logs: `docker logs note-app-mysql`
+4. Restart containers: `pnpm docker:restart`
+
+**Error:** Port 3000 or 3306 already in use
+
+**Solution:**
+
+```bash
+# Stop conflicting containers
+docker stop $(docker ps -q)
+
+# Or stop specific services
+pnpm docker:down
+
+# Check what's using the ports
+netstat -ano | findstr :3000  # Windows
+netstat -ano | findstr :3306  # Windows
+lsof -i :3000  # macOS/Linux
+lsof -i :3306  # macOS/Linux
 ```
 
 ## 📄 License
